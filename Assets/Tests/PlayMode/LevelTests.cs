@@ -222,6 +222,60 @@ namespace Paradox.Tests
             Assert.AreEqual(Dimension.Black, One<TransferableObject>().Dimension);
         }
         [UnityTest]
+        public IEnumerator HeldCubeFollowsCameraBetweenPhysicsSteps()
+        {
+            yield return Switch();
+            player.enabled = false;
+            Camera camera = player.GetComponentInChildren<Camera>();
+            Assert.IsTrue(hands.TryPickUp(cube));
+            Transform grip = cube.transform.parent;
+            float previousStep = Time.fixedDeltaTime;
+            // Deliberately separate render and physics timing to expose interpolation drift.
+            Time.fixedDeltaTime = 0.08f;
+            try
+            {
+                for (int frame = 0; frame < 50; frame++)
+                {
+                    player.transform.position = new Vector3(Mathf.Sin(frame * 0.23f), 0.12f, -2);
+                    player.transform.rotation = Quaternion.Euler(0, frame * 9, 0);
+                    camera.transform.localRotation = Quaternion.Euler(Mathf.Sin(frame * 0.37f) * 55, 0, 0);
+                    yield return null;
+                    Assert.Less(Vector3.Distance(cube.transform.position, grip.position), 0.001f,
+                        "Held Cube drifted from its grip at rendered frame " + frame);
+                    Assert.Less(Quaternion.Angle(cube.transform.rotation, grip.rotation), 0.05f,
+                        "Held Cube lagged behind camera rotation at rendered frame " + frame);
+                }
+            }
+            finally { Time.fixedDeltaTime = previousStep; }
+        }
+
+        [UnityTest]
+        public IEnumerator CarryReleaseTransferAndRecoveryRestorePhysics()
+        {
+            yield return Switch();
+            Rigidbody body = cube.GetComponent<Rigidbody>();
+            RigidbodyInterpolation restingMode = body.interpolation;
+            for (int cycle = 0; cycle < 3; cycle++)
+            {
+                Assert.IsTrue(hands.TryPickUp(cube));
+                Assert.AreEqual(RigidbodyInterpolation.None, body.interpolation);
+                hands.PlaceHeld(new Vector3(1, 1.5f, 2));
+                Assert.AreEqual(restingMode, body.interpolation);
+                yield return null;
+                Assert.Less(Vector3.Distance(cube.transform.position, new Vector3(1, 1.5f, 2)), 0.2f);
+                Assert.IsFalse(body.isKinematic); Assert.IsTrue(cube.GetComponent<Collider>().enabled);
+            }
+            Assert.IsTrue(hands.TryPickUp(cube)); Assert.IsTrue(hands.TryTransfer(blackPad));
+            Assert.AreEqual(restingMode, body.interpolation);
+            yield return Switch();
+            Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.2f);
+            Assert.IsTrue(hands.TryPickUp(cube)); player.Respawn();
+            Assert.AreEqual(restingMode, body.interpolation);
+            yield return null;
+            Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.2f);
+        }
+
+        [UnityTest]
         public IEnumerator PreviewFrames()
         {
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) Assert.Ignore("Preview capture requires a graphics device.");

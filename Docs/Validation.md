@@ -61,3 +61,17 @@ For a Linux build, use **Paradox > Build Linux Player**, or run Unity with `-bat
 - Pixel previews verify still-frame layout and world differences, not perceived animation smoothness or every display size.
 - Windows/macOS exports, other Unity versions and new-Input-System-only projects were not tested.
 - The first sandboxed Unity attempt failed to start Package Manager IPC. Running the installed editor outside that sandbox succeeded. A nonfatal license-token refresh message appeared during editor startup; compilation, tests and build all completed successfully with the available license.
+
+## Carrying drift fix — 23 October 2026
+
+Inspected the supplied 29.52-second recording: while carrying, the Cube visibly moved away from its camera-relative hold position during turns. A regression test reproduced the bug in the original code: **2.694 units of grip-position error on its first sampled frame**.
+
+The Cube's interpolated Rigidbody was writing an older world-space pose over the camera-parented Transform. `TransferableObject` now disables interpolation while held, initializes the physics pose during release/transfer/recovery, and restores its original interpolation setting after synchronizing the new pose. Teleports also suspend interpolation before changing position, preventing stale arrival/recovery poses.
+
+Validation used a separate project copy in `/tmp/ParadoxValidation` to avoid closing the user's open editor. Its Assets, Packages and ProjectSettings were copied from this repository. Unity **6000.6.7f1**, graphics enabled: **17 passed, 0 failed, 0 skipped**, in **21.51 seconds** (13:38:48–13:39:09 IST). Evidence: [CarryFixTestResults.xml](CarryFixTestResults.xml).
+
+New coverage checks position error below 0.001 units and rotation error below 0.05 degrees through 50 frames of movement/turning with a slower physics timestep. It also checks repeated pickup/drop, transfer, and respawn restore normal physics. The original 15 scenarios still pass. The first fix run exposed a teleport/recovery interpolation issue; that was corrected before the final passing run.
+
+A fresh manual playthrough of the patched version remains to be done. Stop Play mode, let Unity compile, then press Play again. No scene regeneration is needed.
+
+The Linux player was rebuilt successfully from the patched sources and copied to `Builds/Linux`. The editor scene was not regenerated or replaced.
