@@ -38246,6 +38246,7 @@ GameObject:
   - component: {fileID: 650297226}
   - component: {fileID: 650297228}
   - component: {fileID: 650297227}
+  - component: {fileID: 650297229}
   m_Layer: 0
   m_Name: Player Camera
   m_TagString: MainCamera
@@ -38329,6 +38330,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &650297229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650297225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a56efadf1f39fdb38557c2a346171d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Paradox.Runtime::Paradox.GardenSkyBackground
+  manager: {fileID: 1013289611}
+  template: {fileID: 2100000, guid: dbca1599ed6987a5180e2d4185f983eb, type: 2}
+  day: {fileID: 2800000, guid: 4cc166f482ae21885b81668636ad85ed, type: 3}
+  night: {fileID: 2800000, guid: 2e872446c383cd609bb4f14d85746648, type: 3}
 --- !u!1 &650359946
 GameObject:
   m_ObjectHideFlags: 0
