@@ -54,12 +54,12 @@ namespace Paradox.Editor
             movement.Configure(camera.transform, spawn, hands, puzzle);
 
             // Six metres of empty floor cannot be crossed with the default jump.
-            Shared("Start Floor", new Vector3(0, -0.5f, 0), new Vector3(14, 1, 10), dimensions, pale, dark);
-            Shared("Far Floor", new Vector3(0, -0.5f, 18), new Vector3(14, 1, 14), dimensions, pale, dark);
-            Shared("West Wall", new Vector3(-7.25f, 2, 10), new Vector3(0.5f, 4, 30), dimensions, pale, dark);
-            Shared("East Wall", new Vector3(7.25f, 2, 10), new Vector3(0.5f, 4, 30), dimensions, pale, dark);
-            Shared("Start Wall", new Vector3(0, 2, -5.25f), new Vector3(15, 4, 0.5f), dimensions, pale, dark);
-            Shared("End Wall", new Vector3(0, 2, 25.25f), new Vector3(15, 4, 0.5f), dimensions, pale, dark);
+            Shared("Start Floor", new Vector3(0, -0.5f, -0.5f), new Vector3(15, 1, 11), dimensions, pale, dark);
+            Shared("Far Floor", new Vector3(0, -0.5f, 18), new Vector3(15, 1, 14), dimensions, pale, dark);
+            Shared("West Wall", new Vector3(-7.75f, 2, 9.5f), new Vector3(0.5f, 4, 31), dimensions, pale, dark);
+            Shared("East Wall", new Vector3(7.75f, 2, 9.5f), new Vector3(0.5f, 4, 31), dimensions, pale, dark);
+            Shared("Start Wall", new Vector3(0, 2, -6.25f), new Vector3(16, 4, 0.5f), dimensions, pale, dark);
+            Shared("End Wall", new Vector3(0, 2, 25.25f), new Vector3(16, 4, 0.5f), dimensions, pale, dark);
             GameObject bridge = Box("Black Bridge", new Vector3(0, -0.2f, 8), new Vector3(3, 0.4f, 6), violet);
             bridge.AddComponent<DimensionObject>().Configure(dimensions, DimensionMembership.Black);
             Shared("Cube Pedestal", new Vector3(-3, 0.35f, 1), new Vector3(1.5f, 0.7f, 1.5f), dimensions, pale, dark);
@@ -96,8 +96,8 @@ namespace Paradox.Editor
             plate.Configure(dimensions, puzzle, placement, plateInset.GetComponent<Renderer>(), mint);
             plateObject.AddComponent<DimensionObject>().Configure(dimensions, DimensionMembership.White);
 
-            Shared("Exit Partition Left", new Vector3(-4.25f, 2, 21), new Vector3(5.5f, 4, 0.6f), dimensions, pale, dark);
-            Shared("Exit Partition Right", new Vector3(4.25f, 2, 21), new Vector3(5.5f, 4, 0.6f), dimensions, pale, dark);
+            Shared("Exit Partition Left", new Vector3(-4.5f, 2, 21), new Vector3(6, 4, 0.6f), dimensions, pale, dark);
+            Shared("Exit Partition Right", new Vector3(4.5f, 2, 21), new Vector3(6, 4, 0.6f), dimensions, pale, dark);
             Shared("Exit Lintel", new Vector3(0, 3.6f, 21), new Vector3(3, 0.8f, 0.6f), dimensions, pale, dark);
             GameObject doorObject = Box("Exit Door", new Vector3(0, 1.6f, 21), new Vector3(3, 3.2f, 0.4f), doorMaterial);
             Door door = doorObject.AddComponent<Door>();

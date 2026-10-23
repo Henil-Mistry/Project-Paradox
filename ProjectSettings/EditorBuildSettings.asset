@@ -8,4 +8,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Level01.unity
     guid: 3f0fe3c609d3f57bf870a62c70b0d71b
+  - enabled: 1
+    path: Assets/Scenes/Level02_Library.unity
+    guid: e45bb98822aeb4e0eab9f504b7880454
+  - enabled: 1
+    path: Assets/Scenes/Level03_MirrorLake.unity
+    guid: f75fd2479fe22affdb3907ef11431e69
+  - enabled: 1
+    path: Assets/Scenes/Level04_Observatory.unity
+    guid: 2bfe14773c2242e66a5150aa76663135
+  - enabled: 1
+    path: Assets/Scenes/Level05_Heart.unity
+    guid: 7dba2a688f3dc7661a226c36aecc7639
   m_configObjects: {}

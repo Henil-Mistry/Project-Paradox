@@ -16,7 +16,7 @@ namespace Paradox.Editor
             Directory.CreateDirectory("Builds/Linux");
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { "Assets/Scenes/Level01.unity" },
+                scenes = System.Array.ConvertAll(System.Array.FindAll(EditorBuildSettings.scenes, scene => scene.enabled), scene => scene.path),
                 locationPathName = "Builds/Linux/ProjectParadox.x86_64",
                 target = BuildTarget.StandaloneLinux64,
                 options = BuildOptions.None

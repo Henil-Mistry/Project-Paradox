@@ -1,4 +1,6 @@
-# Project Paradox V1
+# Project Paradox V1 foundation
+
+The project now contains five greybox levels. This guide documents the original puzzle systems and Garden solution. See [CombinedTask.md](CombinedTask.md) for current progression, added scenery, and validation.
 
 **It's all in your perspective.** Project Paradox is a calm, single-player 3D puzzle game. White is pale and structured; Black is deep blue and violet. These worlds share architecture but have different solid objects and mechanisms. There is one compact level, with no time pressure.
 
@@ -52,11 +54,11 @@ Coordinates are in Unity units; Y is height and +Z is forward from spawn.
 | Object | Center / placement | Size / role |
 | --- | --- | --- |
 | Player Spawn | (0, 0.12, -2.5) | Controller 1.8 high, radius 0.32; camera 1.6 above root |
-| Start Floor | (0, -0.5, 0) | 14 × 1 × 10; top Y=0, ends Z=5 |
+| Start Floor | (0, -0.5, -0.5) | 15 × 1 × 11; top Y=0, ends Z=5 |
 | Chasm | Z=5 through Z=11 | 6-unit gap; recovery trigger centered (0, -4, 8) |
 | Black Bridge | (0, -0.2, 8) | 3 × 0.4 × 6 |
 | Pedestal / Black home | (-3, 0.35, 1) / (-3, 1.15, 1) | Pedestal 1.5 × 0.7 × 1.5; Cube 0.8 per side |
-| Far Floor | (0, -0.5, 18) | 14 × 1 × 14 |
+| Far Floor | (0, -0.5, 18) | 15 × 1 × 14 |
 | Matching warp pads | (-3, 0.12, 14) | White and Black pads; shared arrival (-3, 0.74, 14) |
 | White plate | (3, 0, 17) | 2 × 2 base; placement (3, 0.66, 17) |
 | Door | (0, 1.6, 21) | 3 × 3.2 × 0.4; lifts 4.5 units in 1 second |

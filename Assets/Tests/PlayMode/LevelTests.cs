@@ -201,7 +201,7 @@ namespace Paradox.Tests
         public IEnumerator NormalDropAndWallObstructionUseCameraInteraction()
         {
             yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube));
-            PositionPlayer(new Vector3(0, 0.1f, -4.4f)); player.transform.rotation = Quaternion.Euler(0, 180, 0);
+            PositionPlayer(new Vector3(0, 0.1f, -5.4f)); player.transform.rotation = Quaternion.Euler(0, 180, 0);
             hands.ProcessInteraction(true); Assert.AreEqual(cube, hands.HeldObject);
             yield return new WaitForSeconds(0.22f);
             PositionPlayer(new Vector3(0, 0.1f, 1)); player.transform.rotation = Quaternion.identity;
@@ -217,7 +217,8 @@ namespace Paradox.Tests
             yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube)); Assert.IsTrue(hands.TryTransfer(blackPad));
             yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(plate.Placement);
             yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); Assert.IsTrue(puzzle.Complete());
-            One<Button>().onClick.Invoke(); yield return null; yield return new WaitForFixedUpdate();
+            foreach (Button button in Object.FindObjectsByType<Button>(FindObjectsSortMode.None))
+                if (button.name == "Restart") button.onClick.Invoke(); yield return null; yield return new WaitForFixedUpdate();
             Assert.IsFalse(One<PuzzleManager>().Completed); Assert.IsFalse(One<PuzzleManager>().DoorOpened);
             Assert.AreEqual(Dimension.Black, One<TransferableObject>().Dimension);
         }
@@ -273,6 +274,41 @@ namespace Paradox.Tests
             Assert.AreEqual(restingMode, body.interpolation);
             yield return null;
             Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.2f);
+        }
+
+        [UnityTest]
+        public IEnumerator ExpandedFloorAndPerimeterWorkInBothDimensions()
+        {
+            for (int world = 0; world < 2; world++)
+            {
+                foreach (float x in new[] { -7.05f, 7.05f })
+                {
+                    foreach (float z in new[] { -5.55f, 0f, 4f, 12f, 18f, 20f, 24.5f })
+                    {
+                        PositionPlayer(new Vector3(x, 0.1f, z));
+                        for (int step = 0; step < 5; step++)
+                        {
+                            player.GetComponent<CharacterController>().Move(new Vector3(Mathf.Sign(x) * 0.2f, -0.08f, 0));
+                            yield return new WaitForFixedUpdate();
+                        }
+                        Assert.Less(Mathf.Abs(player.transform.position.x), 7.3f);
+                        Assert.Greater(player.transform.position.y, -0.1f);
+                    }
+                    PositionPlayer(new Vector3(x, 0.1f, 20));
+                    player.GetComponent<CharacterController>().Move(Vector3.forward * 2);
+                    Assert.Less(player.transform.position.z, 21, "Exit partition must meet widened wall");
+                    Assert.IsFalse(puzzle.Completed);
+                    Assert.IsFalse(Physics.Raycast(new Vector3(x, 2, 8), Vector3.down, 3), "No new chasm bypass");
+                }
+                PositionPlayer(new Vector3(0, 0.1f, -5.55f));
+                player.GetComponent<CharacterController>().Move(Vector3.back * 2);
+                Assert.Greater(player.transform.position.z, -5.8f);
+                PositionPlayer(new Vector3(0, 0.1f, 24.5f));
+                player.GetComponent<CharacterController>().Move(Vector3.forward * 2);
+                Assert.Less(player.transform.position.z, 24.8f);
+                PositionPlayer(new Vector3(0, 0.1f, -2));
+                if (world == 0) yield return Switch();
+            }
         }
 
         [UnityTest]

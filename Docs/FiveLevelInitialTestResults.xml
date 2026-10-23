@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="19" result="Passed" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:15:06Z" duration="84.9730993">
+  <test-suite type="TestSuite" id="1026" name="Project Paradox" fullname="Project Paradox" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:15:06Z" duration="84.973099" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1022" name="Paradox.Tests.dll" fullname="/tmp/ParadoxValidation/Library/ScriptAssemblies/Paradox.Tests.dll" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:15:06Z" duration="84.963280" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="71712" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1023" name="Paradox" fullname="Paradox" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:15:06Z" duration="84.962707" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1024" name="Tests" fullname="Paradox.Tests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:15:06Z" duration="84.962308" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="FiveLevelTests" fullname="Paradox.Tests.FiveLevelTests" classname="Paradox.Tests.FiveLevelTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:14:41Z" duration="60.374065" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1002" name="AllFiveRoutesCompleteRestartAndProgress" fullname="Paradox.Tests.FiveLevelTests.AllFiveRoutesCompleteRestartAndProgress" methodname="AllFiveRoutesCompleteRestartAndProgress" classname="Paradox.Tests.FiveLevelTests" runstate="Runnable" seed="1170176765" result="Passed" start-time="2026-10-23 10:13:41Z" end-time="2026-10-23 10:14:41Z" duration="60.363666" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1003" name="LevelTests" fullname="Paradox.Tests.LevelTests" classname="Paradox.Tests.LevelTests" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-10-23 10:14:41Z" end-time="2026-10-23 10:15:06Z" duration="24.586907" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1007" name="BlackCubeCannotOpenWhitePlate" fullname="Paradox.Tests.LevelTests.BlackCubeCannotOpenWhitePlate" methodname="BlackCubeCannotOpenWhitePlate" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="970332924" result="Passed" start-time="2026-10-23 10:14:41Z" end-time="2026-10-23 10:14:42Z" duration="0.725914" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1010" name="BridgeSwitchFallsAndRespawns" fullname="Paradox.Tests.LevelTests.BridgeSwitchFallsAndRespawns" methodname="BridgeSwitchFallsAndRespawns" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1743740887" result="Passed" start-time="2026-10-23 10:14:42Z" end-time="2026-10-23 10:14:44Z" duration="2.298772" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1015" name="CameraTargetedInteractionSolvesPuzzle" fullname="Paradox.Tests.LevelTests.CameraTargetedInteractionSolvesPuzzle" methodname="CameraTargetedInteractionSolvesPuzzle" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="970513651" result="Passed" start-time="2026-10-23 10:14:44Z" end-time="2026-10-23 10:14:45Z" duration="1.395540" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1019" name="CarryReleaseTransferAndRecoveryRestorePhysics" fullname="Paradox.Tests.LevelTests.CarryReleaseTransferAndRecoveryRestorePhysics" methodname="CarryReleaseTransferAndRecoveryRestorePhysics" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="342317758" result="Passed" start-time="2026-10-23 10:14:45Z" end-time="2026-10-23 10:14:46Z" duration="0.700391" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1014" name="CharacterControllerCrossesBridgeAndClosedExitBlocks" fullname="Paradox.Tests.LevelTests.CharacterControllerCrossesBridgeAndClosedExitBlocks" methodname="CharacterControllerCrossesBridgeAndClosedExitBlocks" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="314024233" result="Passed" start-time="2026-10-23 10:14:46Z" end-time="2026-10-23 10:14:50Z" duration="3.553804" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1013" name="CubeLeftBehindAndDroppedAtStartRemainReachable" fullname="Paradox.Tests.LevelTests.CubeLeftBehindAndDroppedAtStartRemainReachable" methodname="CubeLeftBehindAndDroppedAtStartRemainReachable" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1004788355" result="Passed" start-time="2026-10-23 10:14:50Z" end-time="2026-10-23 10:14:51Z" duration="1.234057" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1006" name="DoorRequiresPlateThenLatchesAndCompletes" fullname="Paradox.Tests.LevelTests.DoorRequiresPlateThenLatchesAndCompletes" methodname="DoorRequiresPlateThenLatchesAndCompletes" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="629139808" result="Passed" start-time="2026-10-23 10:14:51Z" end-time="2026-10-23 10:14:53Z" duration="2.535222" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1020" name="ExpandedFloorAndPerimeterWorkInBothDimensions" fullname="Paradox.Tests.LevelTests.ExpandedFloorAndPerimeterWorkInBothDimensions" methodname="ExpandedFloorAndPerimeterWorkInBothDimensions" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1148424362" result="Passed" start-time="2026-10-23 10:14:53Z" end-time="2026-10-23 10:14:57Z" duration="3.156487" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="FallAndCubeRecoveryKeepProgressAndMembership" fullname="Paradox.Tests.LevelTests.FallAndCubeRecoveryKeepProgressAndMembership" methodname="FallAndCubeRecoveryKeepProgressAndMembership" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1324847219" result="Passed" start-time="2026-10-23 10:14:57Z" end-time="2026-10-23 10:14:58Z" duration="1.075751" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1018" name="HeldCubeFollowsCameraBetweenPhysicsSteps" fullname="Paradox.Tests.LevelTests.HeldCubeFollowsCameraBetweenPhysicsSteps" methodname="HeldCubeFollowsCameraBetweenPhysicsSteps" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="40482489" result="Passed" start-time="2026-10-23 10:14:58Z" end-time="2026-10-23 10:14:58Z" duration="0.369225" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1004" name="InitialWorldAndDimensionVisibility" fullname="Paradox.Tests.LevelTests.InitialWorldAndDimensionVisibility" methodname="InitialWorldAndDimensionVisibility" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1312890217" result="Passed" start-time="2026-10-23 10:14:58Z" end-time="2026-10-23 10:14:58Z" duration="0.363258" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1016" name="NormalDropAndWallObstructionUseCameraInteraction" fullname="Paradox.Tests.LevelTests.NormalDropAndWallObstructionUseCameraInteraction" methodname="NormalDropAndWallObstructionUseCameraInteraction" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="454867827" result="Passed" start-time="2026-10-23 10:14:58Z" end-time="2026-10-23 10:14:59Z" duration="0.880445" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1021" name="PreviewFrames" fullname="Paradox.Tests.LevelTests.PreviewFrames" methodname="PreviewFrames" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="915634102" result="Passed" start-time="2026-10-23 10:14:59Z" end-time="2026-10-23 10:15:02Z" duration="2.707238" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1012" name="RestartClearsCompleteStateAndRepeatedReloadRequests" fullname="Paradox.Tests.LevelTests.RestartClearsCompleteStateAndRepeatedReloadRequests" methodname="RestartClearsCompleteStateAndRepeatedReloadRequests" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="727593278" result="Passed" start-time="2026-10-23 10:15:02Z" end-time="2026-10-23 10:15:03Z" duration="0.750717" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1017" name="ReturnTransferAndRestartButtonWork" fullname="Paradox.Tests.LevelTests.ReturnTransferAndRestartButtonWork" methodname="ReturnTransferAndRestartButtonWork" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1284115483" result="Passed" start-time="2026-10-23 10:15:03Z" end-time="2026-10-23 10:15:04Z" duration="1.436728" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1011" name="SpamDoesNotDuplicateTransfersOrSwitches" fullname="Paradox.Tests.LevelTests.SpamDoesNotDuplicateTransfersOrSwitches" methodname="SpamDoesNotDuplicateTransfersOrSwitches" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1517611332" result="Passed" start-time="2026-10-23 10:15:04Z" end-time="2026-10-23 10:15:04Z" duration="0.024827" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="SwitchBlockedByTargetGeometry" fullname="Paradox.Tests.LevelTests.SwitchBlockedByTargetGeometry" methodname="SwitchBlockedByTargetGeometry" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="153340105" result="Passed" start-time="2026-10-23 10:15:04Z" end-time="2026-10-23 10:15:05Z" duration="0.358729" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1005" name="TransferMovesOnlyObjectAndBlocksHeldSwitch" fullname="Paradox.Tests.LevelTests.TransferMovesOnlyObjectAndBlocksHeldSwitch" methodname="TransferMovesOnlyObjectAndBlocksHeldSwitch" classname="Paradox.Tests.LevelTests" runstate="Runnable" seed="1521257196" result="Passed" start-time="2026-10-23 10:15:05Z" end-time="2026-10-23 10:15:06Z" duration="1.014237" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: /tmp/paradox-five-tests.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
