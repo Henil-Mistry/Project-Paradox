@@ -1,0 +1,5 @@
+{
+  "name": "Paradox.Editor",
+  "references": ["Paradox.Runtime", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"]
+}

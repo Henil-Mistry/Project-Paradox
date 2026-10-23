@@ -1,0 +1,5 @@
+{
+  "name": "Paradox.Runtime",
+  "references": ["UnityEngine.UI"],
+  "autoReferenced": true
+}
