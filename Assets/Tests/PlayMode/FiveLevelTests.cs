@@ -19,10 +19,10 @@ namespace Paradox.Tests
             for (int frame = 0; frame < 400; frame++)
             {
                 Vector3 delta = target - player.transform.position; delta.y = 0;
-                if (delta.magnitude < 0.12f) yield break;
+                if (delta.magnitude < 0.12f || One<PuzzleManager>().Completed) yield break;
                 controller.Move(Vector3.ClampMagnitude(delta, 0.09f) + Vector3.down * 0.04f);
                 Assert.Greater(player.transform.position.y, -0.5f, "Route lost floor support");
-                yield return new WaitForFixedUpdate();
+                yield return new WaitForSecondsRealtime(.02f);
             }
             Assert.Fail(SceneManager.GetActiveScene().name + " route blocked while walking toward " + target + " from " + player.transform.position);
         }
@@ -123,7 +123,7 @@ namespace Paradox.Tests
         {
             for (int configuration = 0; configuration < 2; configuration++)
             {
-                PuzzleConfigurationSelector.DebugSeed = configuration - level;
+                PuzzleConfigurationSelector.DebugSeed = configuration - SceneUtility.GetBuildIndexByScenePath("Assets/Scenes/"+scenes[level]+".unity");
                 SceneManager.LoadScene(scenes[level]); yield return null; yield return new WaitForFixedUpdate();
                 var selected = One<PuzzleConfigurationSelector>();
                 Assert.AreEqual(configuration, selected.SelectedIndex);
@@ -197,7 +197,7 @@ namespace Paradox.Tests
                 Assert.IsTrue(dimensions.TrySwitch()); yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
                 Assert.AreEqual(initial.gateDimension,dimensions.Current); Assert.IsTrue(plate.IsSatisfied); Assert.IsTrue(state.DoorOpened);
                 Assert.AreEqual(configuration,selected.SelectedIndex, "Switching must not reroll the configuration");
-                yield return Walk(new Vector3(0,0,23)); yield return new WaitForFixedUpdate(); yield return null;
+                yield return Walk(new Vector3(0,0,23)); yield return null;
                 Assert.IsTrue(state.Completed); Assert.AreEqual(CursorLockMode.None,Cursor.lockState);
                 if (level == 4)
                 {

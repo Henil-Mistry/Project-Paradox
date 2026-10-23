@@ -29,6 +29,7 @@ namespace Paradox
         { Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None; Cursor.visible = !locked; }
         private void Update()
         {
+            if (LevelMenus.InputBlocked) return;
             if (!view || !spawn || !puzzle || puzzle.Completed) return;
             if (PlayerInput.Escape) LockCursor(false);
             if (PlayerInput.Click) LockCursor(true);

@@ -22,7 +22,7 @@ namespace Paradox.Tests
         [UnitySetUp]
         public IEnumerator SetUp()
         {
-            PuzzleConfigurationSelector.DebugSeed = 0;
+            PuzzleConfigurationSelector.DebugSeed = -SceneUtility.GetBuildIndexByScenePath("Assets/Scenes/Level01.unity");
             SceneManager.LoadScene("Level01"); yield return null; yield return new WaitForFixedUpdate();
             dimensions = One<DimensionManager>(); puzzle = One<PuzzleManager>(); cube = One<TransferableObject>();
             hands = One<PlayerInteraction>(); player = One<FirstPersonController>(); plate = One<PressurePlate>(); door = One<Door>();
@@ -89,7 +89,7 @@ namespace Paradox.Tests
             yield return new WaitForFixedUpdate(); yield return null;
             Assert.IsTrue(puzzle.Completed); Assert.AreEqual(CursorLockMode.None, Cursor.lockState);
             bool completeVisible = false;
-            foreach (Text text in Object.FindObjectsByType<Text>(FindObjectsSortMode.None)) if (text.text == "Puzzle complete") completeVisible = true;
+            foreach (Text text in Object.FindObjectsByType<Text>(FindObjectsSortMode.None)) if (text.text == "PUZZLE COMPLETED") completeVisible = true;
             Assert.IsTrue(completeVisible);
         }
         [UnityTest]
