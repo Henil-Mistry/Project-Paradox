@@ -30,6 +30,8 @@ namespace Paradox
         [SerializeField, Min(0.1f)] private float switchCooldown = 0.3f;
         private readonly List<DimensionObject> objects = new List<DimensionObject>();
         private float nextSwitch;
+        private bool transitionCommit;
+        private RealmTransition transition;
         public Dimension Current { get; private set; } = Dimension.White;
         public event Action<Dimension> Changed;
         public void Configure(Light lightSource, Camera camera, HUD display, PlayerInteraction interaction, CapsuleCollider probe, PuzzleManager state)
@@ -37,17 +39,30 @@ namespace Paradox
         private void Start()
         {
             if (!sun || !playerCamera || !hud || !hands || !switchProbe || !puzzle) Debug.LogWarning("Assign all DimensionManager scene references.", this);
+            transition=GetComponent<RealmTransition>();
             ApplyAtmosphere();
         }
         private void Update()
         {
             if (puzzle && puzzle.Completed) return;
-            if (Cursor.lockState == CursorLockMode.Locked && PlayerInput.Switch) TrySwitch();
+            if (Cursor.lockState == CursorLockMode.Locked && PlayerInput.Switch) RequestSwitch();
         }
         public void Register(DimensionObject item) { if (!objects.Contains(item)) objects.Add(item); }
         public void Unregister(DimensionObject item) { objects.Remove(item); }
+        public bool RequestSwitch()
+        {
+            if (transition && transition.isActiveAndEnabled) return transition.Begin();
+            return TrySwitch();
+        }
+        internal bool CommitTransition(RealmTransition source)
+        {
+            if(source != transition || !source.Busy) return false;
+            transitionCommit=true;
+            try { return TrySwitch(); } finally { transitionCommit=false; }
+        }
         public bool TrySwitch()
         {
+            if (transition && transition.Busy && !transitionCommit) return false;
             if (Time.time < nextSwitch || (puzzle && puzzle.Completed)) return false;
             if (hands && hands.HeldObject) { if (hud) hud.Message("Release the object before switching"); return false; }
             Dimension target = Current == Dimension.White ? Dimension.Black : Dimension.White;
@@ -58,7 +73,7 @@ namespace Paradox
             nextSwitch = Time.time + switchCooldown;
             Changed?.Invoke(Current);
             ApplyAtmosphere();
-            if (hud) hud.Flash(Current == Dimension.White ? whiteFog : new Color(0.35f, 0.2f, 0.65f));
+            if (hud && !transitionCommit) hud.Flash(Current == Dimension.White ? whiteFog : new Color(0.35f, 0.2f, 0.65f));
             return true;
         }
         private void ApplyAtmosphere()
