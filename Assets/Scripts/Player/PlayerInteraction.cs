@@ -12,6 +12,8 @@ namespace Paradox
         [SerializeField] private PressurePlate plate;
         [SerializeField, Min(1)] private float reach = 2.7f;
         [SerializeField] private float cooldown = 0.2f;
+        [SerializeField] private TransferGun gun;
+        public void ConfigureGun(TransferGun device) { gun = device; }
         private float nextAction;
         private readonly Collider[] clearance = new Collider[24];
         public TransferableObject HeldObject { get; private set; }
@@ -40,14 +42,14 @@ namespace Paradox
         {
             if (!puzzle || puzzle.Completed || !view || !hud) return;
             WarpPad pad = null;
-            if (HeldObject && pads != null)
+            if (!gun && HeldObject && pads != null)
                 foreach (WarpPad candidate in pads)
                     if (candidate && candidate.IsAvailable && Near(candidate.transform.position) && ClearPath(candidate.Arrival, candidate.transform)) { pad = candidate; break; }
             bool canPlace = HeldObject && plate && plate.IsAvailable && Near(plate.transform.position) && ClearPath(plate.Placement, plate.transform);
             TransferableObject pickup = null;
             if (!HeldObject && Physics.Raycast(view.transform.position, view.transform.forward, out RaycastHit hit, reach, ~0, QueryTriggerInteraction.Ignore))
             { pickup = hit.collider.GetComponentInParent<TransferableObject>(); if (pickup && !pickup.IsAvailable) pickup = null; }
-            hud.Prompt(HeldObject ? (pad ? "E — Transfer object" : canPlace ? "E — Place on plate" : "E — Drop") : pickup ? "E — Pick up" : "");
+            hud.Prompt(HeldObject ? (pad ? "E — Transfer object" : canPlace ? "E — Place on plate" : "E — Drop") : pickup ? "E — Pick up" : gun ? (gun.Equipped ? "Left-click — Transfer cube • E — Holster" : "E — Equip transfer gun") : "");
             if (!pressed || Time.time < nextAction) return;
             nextAction = Time.time + cooldown;
             if (HeldObject)
@@ -64,6 +66,7 @@ namespace Paradox
                 }
             }
             else if (pickup && pickup.PickUp(holdPoint)) HeldObject = pickup;
+            else if (gun) gun.ToggleEquipped();
         }
         private bool DropIsClear(Vector3 position)
         {

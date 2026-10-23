@@ -30,7 +30,7 @@ namespace Paradox
         }
         private void Update()
         {
-            if (!IsHeld && (transform.position.y < -6 || Mathf.Abs(transform.position.x) > 7.5f || transform.position.z < -6 || transform.position.z > 27)) Recover();
+            if (!IsHeld && (transform.position.y < -6 || Mathf.Abs(transform.position.x) > 24 || transform.position.z < -32 || transform.position.z > 30)) Recover();
         }
         public bool PickUp(Transform holdPoint)
         {

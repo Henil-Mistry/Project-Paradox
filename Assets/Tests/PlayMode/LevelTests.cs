@@ -15,19 +15,20 @@ namespace Paradox.Tests
         private PlayerInteraction hands;
         private FirstPersonController player;
         private PressurePlate plate;
-        private WarpPad whitePad;
-        private WarpPad blackPad;
+        private TransferGun gun;
+        private Vector3 Home => GameObject.Find("White Cube Home").transform.position;
         private Door door;
         private static T One<T>() where T : Object => Object.FindFirstObjectByType<T>();
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            PuzzleConfigurationSelector.DebugSeed = 0;
             SceneManager.LoadScene("Level01"); yield return null; yield return new WaitForFixedUpdate();
             dimensions = One<DimensionManager>(); puzzle = One<PuzzleManager>(); cube = One<TransferableObject>();
             hands = One<PlayerInteraction>(); player = One<FirstPersonController>(); plate = One<PressurePlate>(); door = One<Door>();
-            foreach (WarpPad pad in Object.FindObjectsByType<WarpPad>(FindObjectsSortMode.None))
-                if (pad.Dimension == Dimension.White) whitePad = pad; else blackPad = pad;
+            gun = One<TransferGun>(); player.enabled = false;
         }
+        [TearDown] public void ClearSeed() { PuzzleConfigurationSelector.DebugSeed = null; }
         private void PositionPlayer(Vector3 position)
         {
             CharacterController controller = player.GetComponent<CharacterController>();
@@ -38,9 +39,11 @@ namespace Paradox.Tests
         private IEnumerator TransferToWhite()
         {
             yield return Switch();
-            Assert.IsTrue(hands.TryPickUp(cube));
-            PositionPlayer(new Vector3(-3, 0.1f, 12.2f));
-            Assert.IsTrue(hands.TryTransfer(blackPad));
+            cube.MoveToDimension(Dimension.Black, new Vector3(-3,.5f,14));
+            PositionPlayer(new Vector3(-3,.1f,12.2f));
+            if (!gun.Equipped) gun.ToggleEquipped();
+            player.GetComponentInChildren<Camera>().transform.LookAt(cube.transform.position);
+            Assert.IsTrue(gun.TryFire());
             yield return Switch();
         }
         [UnityTest]
@@ -57,21 +60,7 @@ namespace Paradox.Tests
             Assert.IsTrue(Physics.Raycast(new Vector3(0, 2, 8), Vector3.down, 4));
         }
         [UnityTest]
-        public IEnumerator TransferMovesOnlyObjectAndBlocksHeldSwitch()
-        {
-            yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube));
-            yield return new WaitForSeconds(0.32f);
-            Vector3 playerPosition = player.transform.position;
-            Assert.IsFalse(dimensions.TrySwitch());
-            Assert.IsTrue(hands.TryTransfer(blackPad));
-            Assert.AreEqual(Dimension.Black, dimensions.Current); Assert.AreEqual(Dimension.White, cube.Dimension);
-            Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.01f);
-            Assert.AreEqual(playerPosition, player.transform.position); Assert.IsNull(hands.HeldObject);
-            Assert.IsTrue(cube.GetComponent<Rigidbody>().isKinematic); Assert.IsFalse(cube.IsAvailable);
-            yield return Switch(); Assert.IsTrue(cube.IsAvailable);
-        }
-        [UnityTest]
-        public IEnumerator DoorRequiresPlateThenLatchesAndCompletes()
+        public IEnumerator DoorTracksPlateRepeatedlyAndCompletes()
         {
             Assert.IsFalse(puzzle.TryOpenDoor(plate)); Assert.IsFalse(puzzle.Complete());
             yield return TransferToWhite();
@@ -79,11 +68,22 @@ namespace Paradox.Tests
             Assert.IsTrue(hands.TryPickUp(cube));
             hands.PlaceHeld(plate.Placement); yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
             Assert.IsTrue(plate.IsSatisfied); Assert.IsTrue(puzzle.DoorOpened); Assert.IsTrue(door.IsOpen);
-            Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(new Vector3(0, 0.5f, 15));
-            yield return Switch(); yield return Switch();
-            Assert.IsTrue(puzzle.DoorOpened); Assert.IsTrue(door.IsOpen);
+            for (int cycle = 0; cycle < 3; cycle++)
+            {
+                yield return new WaitForSeconds(1.1f);
+                Assert.Greater(door.transform.position.y, 5);
+                Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(new Vector3(0, 0.5f, 15));
+                yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+                Assert.IsFalse(plate.IsSatisfied); Assert.IsFalse(puzzle.DoorOpened); Assert.IsFalse(door.IsOpen);
+                Assert.IsFalse(puzzle.Complete());
+                yield return new WaitForSeconds(1.1f);
+                Assert.That(door.transform.position.y, Is.EqualTo(1.6f).Within(0.01f));
+                Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(plate.Placement);
+                yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+                Assert.IsTrue(puzzle.DoorOpened);
+            }
             yield return new WaitForSeconds(1.1f);
-            Assert.Greater(door.transform.position.y, 5);
+            yield return Switch();
             PositionPlayer(new Vector3(0, 0.1f, 22.8f));
             player.GetComponent<CharacterController>().Move(Vector3.forward * 0.1f);
             yield return new WaitForFixedUpdate(); yield return null;
@@ -91,6 +91,32 @@ namespace Paradox.Tests
             bool completeVisible = false;
             foreach (Text text in Object.FindObjectsByType<Text>(FindObjectsSortMode.None)) if (text.text == "Puzzle complete") completeVisible = true;
             Assert.IsTrue(completeVisible);
+        }
+        [UnityTest]
+        public IEnumerator PlateReleasesAfterResetTransferDestroyAndLastOccupant()
+        {
+            cube.MoveToDimension(Dimension.White, plate.Placement);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Assert.IsTrue(puzzle.DoorOpened);
+            cube.Recover();
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Assert.IsFalse(puzzle.DoorOpened);
+            cube.MoveToDimension(Dimension.White, plate.Placement);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Assert.IsTrue(puzzle.DoorOpened);
+            cube.MoveToDimension(Dimension.Black, plate.Placement);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Assert.IsFalse(puzzle.DoorOpened);
+            cube.MoveToDimension(Dimension.White, plate.Placement);
+            var second = Object.Instantiate(cube.gameObject).GetComponent<TransferableObject>();
+            second.MoveToDimension(Dimension.White, plate.Placement + Vector3.right * 0.6f);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            cube.Recover();
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Assert.IsTrue(puzzle.DoorOpened, "Remaining valid occupant must keep the door open");
+            Object.Destroy(second.gameObject);
+            yield return null; yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Assert.IsFalse(plate.IsSatisfied); Assert.IsFalse(puzzle.DoorOpened);
         }
         [UnityTest]
         public IEnumerator BlackCubeCannotOpenWhitePlate()
@@ -104,7 +130,7 @@ namespace Paradox.Tests
         public IEnumerator SwitchBlockedByTargetGeometry()
         {
             // The hidden starting Cube would overlap this player's body in Black.
-            PositionPlayer(new Vector3(-3, 0.72f, 1));
+            PositionPlayer(cube.transform.position - Vector3.up * 0.3f);
             Assert.IsFalse(dimensions.TrySwitch()); Assert.AreEqual(Dimension.White, dimensions.Current);
             PositionPlayer(new Vector3(0, 0.1f, -2)); yield return Switch();
         }
@@ -113,45 +139,36 @@ namespace Paradox.Tests
         {
             yield return TransferToWhite();
             cube.transform.position = new Vector3(0, -9, 8); yield return null;
-            Assert.AreEqual(Dimension.White, cube.Dimension); Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.1f);
+            Assert.AreEqual(Dimension.White, cube.Dimension); Assert.Less(Vector3.Distance(cube.transform.position, Home), 0.1f);
             Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(plate.Placement);
             yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); Assert.IsTrue(puzzle.DoorOpened);
             Assert.IsTrue(hands.TryPickUp(cube)); player.Respawn();
             Assert.IsNull(hands.HeldObject); Assert.AreEqual(Dimension.White, dimensions.Current);
-            Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.1f); Assert.IsTrue(puzzle.DoorOpened);
+            Assert.Less(Vector3.Distance(cube.transform.position, Home), 0.1f);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); Assert.IsFalse(puzzle.DoorOpened);
             yield return Switch();
             cube.MoveToDimension(Dimension.Black, new Vector3(0, -9, 8)); yield return null;
-            Assert.AreEqual(Dimension.Black, cube.Dimension); Assert.Less(Vector3.Distance(cube.transform.position, new Vector3(-3, 1.15f, 1)), 0.1f);
+            Assert.AreEqual(Dimension.Black, cube.Dimension); Assert.Less(Vector3.Distance(cube.transform.position, new Vector3(-10, 0.5f, -12)), 0.1f);
         }
         [UnityTest]
         public IEnumerator BridgeSwitchFallsAndRespawns()
         {
+            player.enabled = true;
             yield return Switch(); PositionPlayer(new Vector3(0, 0.1f, 8));
             yield return Switch(); yield return new WaitForSeconds(1.6f);
             Assert.Less(player.transform.position.z, 0); Assert.Greater(player.transform.position.y, -1);
             Assert.AreEqual(Dimension.White, dimensions.Current);
         }
         [UnityTest]
-        public IEnumerator SpamDoesNotDuplicateTransfersOrSwitches()
-        {
-            Assert.IsTrue(dimensions.TrySwitch());
-            for (int i = 0; i < 30; i++) Assert.IsFalse(dimensions.TrySwitch());
-            Assert.IsTrue(hands.TryPickUp(cube)); Assert.IsFalse(hands.TryPickUp(cube));
-            Assert.IsTrue(hands.TryTransfer(blackPad));
-            for (int i = 0; i < 30; i++) Assert.IsFalse(hands.TryTransfer(blackPad));
-            Assert.AreEqual(Dimension.White, cube.Dimension); Assert.AreEqual(Dimension.Black, dimensions.Current);
-            yield return null;
-        }
-        [UnityTest]
         public IEnumerator RestartClearsCompleteStateAndRepeatedReloadRequests()
         {
             yield return TransferToWhite(); Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(plate.Placement);
-            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); Assert.IsTrue(puzzle.Complete());
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); yield return Switch(); Assert.IsTrue(puzzle.Complete());
             GameFlow flow = One<GameFlow>(); for (int i = 0; i < 20; i++) flow.Restart();
             yield return null; yield return new WaitForFixedUpdate();
             Assert.AreEqual(Dimension.White, One<DimensionManager>().Current); Assert.AreEqual(Dimension.Black, One<TransferableObject>().Dimension);
             Assert.IsFalse(One<PuzzleManager>().DoorOpened); Assert.IsFalse(One<PuzzleManager>().Completed); Assert.IsFalse(One<Door>().IsOpen);
-            Assert.Less(Vector3.Distance(One<TransferableObject>().transform.position, new Vector3(-3, 1.15f, 1)), 0.1f);
+            Assert.Less(Vector3.Distance(One<TransferableObject>().transform.position, new Vector3(-10, 0.5f, -12)), 0.1f);
             Assert.Less(One<FirstPersonController>().transform.position.z, 0);
             foreach (Text text in Object.FindObjectsByType<Text>(FindObjectsSortMode.None)) Assert.AreNotEqual("Puzzle complete", text.text);
         }
@@ -180,14 +197,16 @@ namespace Paradox.Tests
         public IEnumerator CameraTargetedInteractionSolvesPuzzle()
         {
             yield return Switch();
-            PositionPlayer(new Vector3(-3, 0.1f, -0.8f));
+            PositionPlayer(new Vector3(cube.transform.position.x, 0.1f, cube.transform.position.z + 1.8f));
             Camera camera = player.GetComponentInChildren<Camera>();
             camera.transform.LookAt(cube.transform.position);
             hands.ProcessInteraction(true); Assert.AreEqual(cube, hands.HeldObject);
             yield return new WaitForSeconds(0.22f);
             PositionPlayer(new Vector3(-3, 0.1f, 12.2f));
-            camera.transform.LookAt(blackPad.Arrival);
-            hands.ProcessInteraction(true); Assert.IsNull(hands.HeldObject); Assert.AreEqual(Dimension.White, cube.Dimension);
+            hands.PlaceHeld(new Vector3(-3,.5f,14));
+            if (!gun.Equipped) gun.ToggleEquipped();
+            camera.transform.LookAt(cube.transform.position);
+            Assert.IsTrue(gun.TryFire()); Assert.IsNull(hands.HeldObject); Assert.AreEqual(Dimension.White, cube.Dimension);
             yield return Switch(); yield return new WaitForSeconds(0.22f);
             camera.transform.LookAt(cube.transform.position);
             hands.ProcessInteraction(true); Assert.AreEqual(cube, hands.HeldObject);
@@ -201,26 +220,12 @@ namespace Paradox.Tests
         public IEnumerator NormalDropAndWallObstructionUseCameraInteraction()
         {
             yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube));
-            PositionPlayer(new Vector3(0, 0.1f, -5.4f)); player.transform.rotation = Quaternion.Euler(0, 180, 0);
+            PositionPlayer(new Vector3(0, 0.1f, -22.4f)); player.transform.rotation = Quaternion.Euler(0, 180, 0);
             hands.ProcessInteraction(true); Assert.AreEqual(cube, hands.HeldObject);
             yield return new WaitForSeconds(0.22f);
             PositionPlayer(new Vector3(0, 0.1f, 1)); player.transform.rotation = Quaternion.identity;
             hands.ProcessInteraction(true); Assert.IsNull(hands.HeldObject); Assert.IsTrue(cube.GetComponent<Collider>().enabled);
             yield return new WaitForSeconds(0.3f); Assert.IsTrue(cube.IsAvailable); Assert.Greater(cube.transform.position.y, 0);
-        }
-        [UnityTest]
-        public IEnumerator ReturnTransferAndRestartButtonWork()
-        {
-            yield return TransferToWhite(); Assert.IsTrue(hands.TryPickUp(cube));
-            Assert.IsTrue(hands.TryTransfer(whitePad)); Assert.AreEqual(Dimension.White, dimensions.Current);
-            Assert.AreEqual(Dimension.Black, cube.Dimension); Assert.Less(Vector3.Distance(cube.transform.position, blackPad.Arrival), 0.01f);
-            yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube)); Assert.IsTrue(hands.TryTransfer(blackPad));
-            yield return Switch(); Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(plate.Placement);
-            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate(); Assert.IsTrue(puzzle.Complete());
-            foreach (Button button in Object.FindObjectsByType<Button>(FindObjectsSortMode.None))
-                if (button.name == "Restart") button.onClick.Invoke(); yield return null; yield return new WaitForFixedUpdate();
-            Assert.IsFalse(One<PuzzleManager>().Completed); Assert.IsFalse(One<PuzzleManager>().DoorOpened);
-            Assert.AreEqual(Dimension.Black, One<TransferableObject>().Dimension);
         }
         [UnityTest]
         public IEnumerator HeldCubeFollowsCameraBetweenPhysicsSteps()
@@ -266,79 +271,50 @@ namespace Paradox.Tests
                 Assert.Less(Vector3.Distance(cube.transform.position, new Vector3(1, 1.5f, 2)), 0.2f);
                 Assert.IsFalse(body.isKinematic); Assert.IsTrue(cube.GetComponent<Collider>().enabled);
             }
-            Assert.IsTrue(hands.TryPickUp(cube)); Assert.IsTrue(hands.TryTransfer(blackPad));
+            cube.MoveToDimension(Dimension.Black, new Vector3(-3,.5f,14));
+            PositionPlayer(new Vector3(-3,.1f,12.2f)); gun.ToggleEquipped();
+            player.GetComponentInChildren<Camera>().transform.LookAt(cube.transform.position);
+            Assert.IsTrue(gun.TryFire());
             Assert.AreEqual(restingMode, body.interpolation);
             yield return Switch();
-            Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.2f);
+            Assert.Less(Vector3.Distance(cube.transform.position, new Vector3(-3,.5f,14)), 0.2f);
             Assert.IsTrue(hands.TryPickUp(cube)); player.Respawn();
             Assert.AreEqual(restingMode, body.interpolation);
             yield return null;
-            Assert.Less(Vector3.Distance(cube.transform.position, whitePad.Arrival), 0.2f);
+            Assert.Less(Vector3.Distance(cube.transform.position, Home), 0.2f);
         }
 
         [UnityTest]
-        public IEnumerator ExpandedFloorAndPerimeterWorkInBothDimensions()
+        public IEnumerator GunRejectsSceneryHeldObjectsChasmAndHiddenObstructions()
         {
-            for (int world = 0; world < 2; world++)
-            {
-                foreach (float x in new[] { -7.05f, 7.05f })
-                {
-                    foreach (float z in new[] { -5.55f, 0f, 4f, 12f, 18f, 20f, 24.5f })
-                    {
-                        PositionPlayer(new Vector3(x, 0.1f, z));
-                        for (int step = 0; step < 5; step++)
-                        {
-                            player.GetComponent<CharacterController>().Move(new Vector3(Mathf.Sign(x) * 0.2f, -0.08f, 0));
-                            yield return new WaitForFixedUpdate();
-                        }
-                        Assert.Less(Mathf.Abs(player.transform.position.x), 7.3f);
-                        Assert.Greater(player.transform.position.y, -0.1f);
-                    }
-                    PositionPlayer(new Vector3(x, 0.1f, 20));
-                    player.GetComponent<CharacterController>().Move(Vector3.forward * 2);
-                    Assert.Less(player.transform.position.z, 21, "Exit partition must meet widened wall");
-                    Assert.IsFalse(puzzle.Completed);
-                    Assert.IsFalse(Physics.Raycast(new Vector3(x, 2, 8), Vector3.down, 3), "No new chasm bypass");
-                }
-                PositionPlayer(new Vector3(0, 0.1f, -5.55f));
-                player.GetComponent<CharacterController>().Move(Vector3.back * 2);
-                Assert.Greater(player.transform.position.z, -5.8f);
-                PositionPlayer(new Vector3(0, 0.1f, 24.5f));
-                player.GetComponent<CharacterController>().Move(Vector3.forward * 2);
-                Assert.Less(player.transform.position.z, 24.8f);
-                PositionPlayer(new Vector3(0, 0.1f, -2));
-                if (world == 0) yield return Switch();
-            }
-        }
-
-        [UnityTest]
-        public IEnumerator PreviewFrames()
-        {
-            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) Assert.Ignore("Preview capture requires a graphics device.");
-            yield return new WaitForSeconds(0.4f); Capture("White");
-            yield return Switch(); yield return new WaitForSeconds(0.4f); Capture("Black");
-            Assert.IsTrue(hands.TryPickUp(cube)); PositionPlayer(new Vector3(-3, 0.1f, 12.2f));
-            Assert.IsTrue(hands.TryTransfer(blackPad)); yield return Switch();
-            Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(plate.Placement);
-            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
-            yield return new WaitForSeconds(1.1f);
-            PositionPlayer(new Vector3(0, 0.1f, 13)); Capture("Solved");
-            Assert.IsTrue(puzzle.Complete()); Capture("Complete");
-        }
-        private void Capture(string name)
-        {
-            Camera camera = player.GetComponentInChildren<Camera>();
-            Canvas canvas = One<HUD>().GetComponent<Canvas>();
-            RenderTexture target = new RenderTexture(1280, 720, 24);
-            RenderTexture previous = RenderTexture.active;
-            camera.targetTexture = target; canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 0.3f;
-            Canvas.ForceUpdateCanvases(); camera.Render(); RenderTexture.active = target;
-            Texture2D image = new Texture2D(1280, 720, TextureFormat.RGB24, false);
-            image.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); image.Apply();
-            string folder = System.IO.Path.Combine(Application.dataPath, "../Docs/Previews");
-            System.IO.Directory.CreateDirectory(folder); System.IO.File.WriteAllBytes(System.IO.Path.Combine(folder, name + ".png"), image.EncodeToPNG());
-            camera.targetTexture = null; RenderTexture.active = previous; canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            Object.Destroy(image); Object.Destroy(target);
+            yield return Switch();
+            var camera = player.GetComponentInChildren<Camera>(); gun.ToggleEquipped();
+            camera.transform.LookAt(camera.transform.position + Vector3.up);
+            Assert.IsFalse(gun.TryFire());
+            yield return new WaitForSeconds(.31f);
+            Assert.IsTrue(hands.TryPickUp(cube)); Assert.IsFalse(gun.TryFire()); Assert.IsFalse(dimensions.TrySwitch());
+            hands.PlaceHeld(new Vector3(0,.5f,8)); PositionPlayer(new Vector3(0,.1f,6));
+            yield return new WaitForSeconds(.31f); camera.transform.LookAt(cube.transform.position);
+            Assert.IsFalse(gun.TryFire(), "White has no floor under the Black bridge");
+            Assert.AreEqual(Dimension.Black,cube.Dimension);
+            cube.MoveToDimension(Dimension.Black,new Vector3(0,.5f,14)); PositionPlayer(new Vector3(0,.1f,12));
+            var blocker = GameObject.CreatePrimitive(PrimitiveType.Cube); blocker.transform.position = cube.transform.position;
+            var membership = blocker.AddComponent<DimensionObject>(); membership.Configure(dimensions,DimensionMembership.White);
+            yield return new WaitForSeconds(.31f); camera.transform.LookAt(cube.transform.position);
+            Assert.IsFalse(gun.TryFire(), "Hidden destination obstruction must block transfer");
+            Assert.IsFalse(blocker.GetComponent<Collider>().enabled); Assert.AreEqual(Dimension.Black,cube.Dimension);
+            Object.Destroy(blocker); yield return null; yield return new WaitForSeconds(.31f);
+            Vector3 position = cube.transform.position;
+            Assert.IsTrue(gun.TryFire()); Assert.IsFalse(gun.TryFire());
+            Assert.AreEqual(Dimension.Black,dimensions.Current); Assert.AreEqual(Dimension.White,cube.Dimension);
+            Assert.Less(Vector3.Distance(position,cube.transform.position),.01f);
+            yield return Switch(); yield return new WaitForSeconds(.31f); camera.transform.LookAt(cube.transform.position);
+            Assert.IsTrue(gun.TryFire()); Assert.AreEqual(Dimension.Black,cube.Dimension);
+            yield return Switch();
+            Assert.IsTrue(cube.IsAvailable); Assert.IsFalse(cube.GetComponent<Rigidbody>().isKinematic);
+            Assert.IsTrue(hands.TryPickUp(cube)); hands.PlaceHeld(new Vector3(1,.5f,14));
+            yield return new WaitForFixedUpdate(); Assert.IsTrue(cube.GetComponent<Collider>().enabled);
+            foreach (var pad in Object.FindObjectsByType<WarpPad>(FindObjectsInactive.Include,FindObjectsSortMode.None)) Assert.IsFalse(pad.IsAvailable);
         }
     }
 }

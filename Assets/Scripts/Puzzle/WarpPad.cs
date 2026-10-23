@@ -11,7 +11,7 @@ namespace Paradox
         [SerializeField] private ParticleSystem burst;
         public Dimension Dimension => dimension;
         public Vector3 Arrival => arrival ? arrival.position : transform.position + Vector3.up;
-        public bool IsAvailable => manager && manager.Current == dimension && linkedPad && linkedPad.dimension != dimension;
+        public bool IsAvailable => isActiveAndEnabled && manager && manager.Current == dimension && linkedPad && linkedPad.dimension != dimension;
         public void Configure(DimensionManager owner, Dimension home, WarpPad linked, Transform landingPoint, ParticleSystem effect)
         { manager = owner; dimension = home; linkedPad = linked; arrival = landingPoint; burst = effect; }
         public bool Transfer(TransferableObject item)

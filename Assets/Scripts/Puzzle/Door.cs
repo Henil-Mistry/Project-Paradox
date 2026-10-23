@@ -11,10 +11,10 @@ namespace Paradox
         public bool IsOpen { get; private set; }
         private void Awake() { closedPosition = transform.localPosition; }
         public void Open() { IsOpen = true; }
+        public void Close() { IsOpen = false; }
         private void Update()
         {
-            if (!IsOpen) return;
-            progress = Mathf.MoveTowards(progress, 1, Time.deltaTime / duration);
+            progress = Mathf.MoveTowards(progress, IsOpen ? 1 : 0, Time.deltaTime / duration);
             transform.localPosition = closedPosition + openOffset * Mathf.SmoothStep(0, 1, progress);
         }
     }
