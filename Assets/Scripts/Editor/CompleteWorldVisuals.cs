@@ -1,0 +1,25 @@
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+namespace Paradox.Editor
+{
+ public static class CompleteWorldVisuals
+ {
+  static DimensionManager manager;static Transform root;static Material stone,dark,gold,violet,ice;
+  static GameObject Box(string n,Vector3 p,Vector3 s,Material w,Material b){var g=GameObject.CreatePrimitive(PrimitiveType.Cube);g.name=n;g.transform.SetParent(root);g.transform.position=p;g.transform.localScale=s;Object.DestroyImmediate(g.GetComponent<Collider>());g.GetComponent<Renderer>().sharedMaterial=w;g.AddComponent<DimensionTint>().Configure(manager,w,b);return g;}
+  static Material Material(string name,Color color,Color emission){var existing=AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Celestial/"+name+".mat");if(existing)return existing;var m=new Material(Shader.Find("Standard"));m.color=color;m.SetFloat("_Glossiness",.85f);m.SetColor("_EmissionColor",emission);AssetDatabase.CreateAsset(m,"Assets/Art/Celestial/"+name+".mat");return m;}
+  public static void Apply(){System.IO.Directory.CreateDirectory("Assets/Art/Celestial");AssetDatabase.Refresh();stone=AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Garden/Ivory marble.mat");dark=AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Garden/Midnight stone.mat");gold=AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Garden/Brushed gold.mat");violet=Material("Violet crystal",new Color(.14f,.06f,.3f),new Color(.25f,.08f,.55f));ice=Material("Glacial glass",new Color(.5f,.75f,.87f),new Color(.05f,.1f,.13f));
+   string[] scenes={"Level02_Library","Level03_MirrorLake","Level04_Observatory","Level05_Heart"};
+   foreach(string name in scenes){var scene=EditorSceneManager.OpenScene("Assets/Scenes/"+name+".unity");if(GameObject.Find("Celestial finishing kit"))continue;manager=Object.FindFirstObjectByType<DimensionManager>();root=new GameObject("Celestial finishing kit").transform;
+    for(int side=-1;side<=1;side+=2)for(int z=-12;z<=24;z+=12){var banner=Box("Emblem banner",new Vector3(side*16,5,z),new Vector3(1.3f,3,.08f),stone,dark);var emblem=Box("Diamond emblem",new Vector3(side*16,5,z-.08f),new Vector3(.6f,.6f,.06f),gold,violet);emblem.transform.rotation=Quaternion.Euler(0,0,45);if(z==-12&&side==-1){foreach(var t in banner.GetComponents<DimensionTint>())Object.DestroyImmediate(t);PrefabUtility.SaveAsPrefabAsset(banner,"Assets/Art/Celestial/Banner.prefab");banner.AddComponent<DimensionTint>().Configure(manager,stone,dark);}}
+    for(int side=-1;side<=1;side+=2)for(int i=0;i<4;i++){Vector3 p=new Vector3(side*(24+i*5),-3+i,4+i*8);Box("Floating island",p,new Vector3(4,3,4),stone,dark);Box("Waterfall ribbon",p+new Vector3(0,-6,-2),new Vector3(.65f,10,.05f),ice,violet);var crystal=Box("Crystal obelisk",p+Vector3.up*3,new Vector3(.7f,3,.7f),ice,violet);crystal.transform.rotation=Quaternion.Euler(0,45,20);}
+    if(name.Contains("Library")){for(int side=-1;side<=1;side+=2)for(int i=0;i<14;i++){var g=Box("Runic stroke",new Vector3(side*14,2+i%5,-12+i/5f),new Vector3(.04f,.35f,.04f),gold,violet);g.transform.rotation=Quaternion.Euler(0,0,i*37);g.AddComponent<VisualGlitch>().Configure(Object.FindFirstObjectByType<PuzzleManager>(),4,.2f,.06f,0,false);}for(int side=-1;side<=1;side+=2)Box("Glass archive backing",new Vector3(side*20,3,-9),new Vector3(.06f,6,8),ice,dark);}
+    if(name.Contains("Lake")){foreach(var t in Object.FindObjectsByType<DimensionTint>(FindObjectsSortMode.None))if(t.name.Contains("Floor")||t.name=="Lake surface"||t.name.Contains("ice")){t.Configure(manager,ice,dark);t.GetComponent<Renderer>().sharedMaterial=ice;}for(int i=0;i<18;i++){var crack=Box("Ice fracture",new Vector3(-6+i*.7f,.015f,-3+i%5),new Vector3(.018f,.012f,1.4f),stone,violet);crack.transform.rotation=Quaternion.Euler(0,i*31,0);}for(int side=-1;side<=1;side+=2)Box("Palace wing",new Vector3(side*9,7,26),new Vector3(6,14,2),stone,dark);}
+    if(name.Contains("Observatory")){for(int i=0;i<12;i++){float a=i*Mathf.PI/6;var tooth=Box("Clockwork tooth",new Vector3(Mathf.Cos(a)*4.3f,8+Mathf.Sin(a)*4.3f,19.6f),new Vector3(.35f,.5f,.12f),gold,violet);tooth.transform.rotation=Quaternion.Euler(0,0,i*30);}Box("Clock tower spine",new Vector3(0,12,25),new Vector3(3,24,3),stone,dark);}
+    if(name.Contains("Heart")){foreach(var t in Object.FindObjectsByType<Transform>(FindObjectsSortMode.None))if(t.name=="Heart core segment"){t.GetComponent<DimensionTint>().Configure(manager,ice,violet);}for(int i=0;i<10;i++){var fissure=Box("Heart radiant fracture",new Vector3(-1.5f+i*.3f,6.8f+Mathf.Sin(i)*.6f,14.4f),new Vector3(.045f,1,.05f),gold,violet);fissure.transform.rotation=Quaternion.Euler(0,0,i*29);fissure.AddComponent<VisualGlitch>().Configure(Object.FindFirstObjectByType<PuzzleManager>(),1.1f,.3f,.08f,0,false);}}
+    EditorSceneManager.SaveScene(scene);
+   }
+   AssetDatabase.SaveAssets();foreach(var m in new[]{ice,violet}){m.EnableKeyword("_EMISSION");m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.RealtimeEmissive;EditorUtility.SetDirty(m);}AssetDatabase.SaveAssets();
+  }
+ }
+}
