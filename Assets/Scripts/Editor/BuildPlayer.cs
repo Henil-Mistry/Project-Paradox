@@ -11,8 +11,7 @@ namespace Paradox.Editor
         public static void BuildLinux()
         {
             PlayerSettings.productName = "Project Paradox";
-            PlayerSettings.defaultScreenWidth = 1280; PlayerSettings.defaultScreenHeight = 720;
-            PlayerSettings.fullScreenMode = UnityEngine.FullScreenMode.Windowed;
+            // Respect the project's display defaults; runtime preferences override them on launch.
             Directory.CreateDirectory("Builds/Linux");
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {

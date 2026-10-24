@@ -12,12 +12,16 @@ namespace Paradox
         public bool Open { get; private set; }
         public bool Completed { get; private set; }
         GameObject panel; Text heading; Button resume, next; float priorScale=1; int closedFrame=-1; bool leaving;
+        GameObject mainFrame, displayFrame;
+        Button displayButton, modeButton, resolutionButton;
+        Text modeLabel, resolutionLabel;
         void Awake() { Active=this; Build(); }
         void Update() { if (Input.GetKeyDown(KeyCode.Escape) && !Completed) TogglePause(); }
         public void TogglePause()
         {
             var transition=GetComponent<RealmTransition>();
             if (Completed || leaving || (transition && transition.Busy)) return;
+            if (Open && displayFrame.activeSelf) { ShowDisplay(false); return; }
             if(Open) Resume(); else Show(false);
         }
         public void ShowCompletion() { if(!Completed) Show(true); }
@@ -26,6 +30,8 @@ namespace Paradox
             if(!Open) priorScale=Time.timeScale;
             Completed=complete; Open=true; Time.timeScale=0;
             FirstPersonController.LockCursor(false); panel.SetActive(true);
+            ShowDisplay(false);
+            displayButton.gameObject.SetActive(!complete);
             heading.text=complete?"PUZZLE COMPLETED":"BETWEEN WORLDS";
             resume.gameObject.SetActive(!complete);next.gameObject.SetActive(complete);
         }
@@ -46,11 +52,56 @@ namespace Paradox
             var r=Rect("Shared pause and completion",canvas.transform,Vector2.zero,Vector2.zero);r.anchorMin=Vector2.zero;r.anchorMax=Vector2.one;r.offsetMin=r.offsetMax=Vector2.zero;
             panel=r.gameObject;var shade=panel.AddComponent<Image>();shade.color=new Color(.015f,.01f,.035f,.82f);
             var frame=Rect("Silver violet tablet",r,new Vector2(560,470),Vector2.zero);frame.gameObject.AddComponent<MenuButtonGraphic>();
+            mainFrame=frame.gameObject;
             heading=Label("BETWEEN WORLDS",frame,new Vector2(520,70),new Vector2(0,150),32);
             Label("P A R A D O X",frame,new Vector2(400,30),new Vector2(0,103),16);
             Button("HOME",frame,35,Home);resume=Button("RESUME",frame,-45,Resume);Button("RETRY",frame,-125,Retry);
             next=Button(SceneManager.GetActiveScene().name=="Level05_Heart"?"MAIN MENU":"CONTINUE",frame,-45,Continue);
+            displayButton=Button("DISPLAY",frame,-200,()=>ShowDisplay(true));
+            displayButton.GetComponent<RectTransform>().sizeDelta=new Vector2(240,44);
+            displayButton.GetComponentInChildren<Text>().fontSize=20;
+            BuildDisplay(r);
             panel.SetActive(false);
+        }
+        void BuildDisplay(Transform parent)
+        {
+            DisplayPreferences.EnsureInitialized();
+            var frame=Rect("Display settings",parent,new Vector2(560,470),Vector2.zero);
+            frame.gameObject.AddComponent<MenuButtonGraphic>();displayFrame=frame.gameObject;
+            Label("DISPLAY",frame,new Vector2(500,60),new Vector2(0,170),30);
+            modeButton=Button("",frame,75,()=>
+            {
+                DisplayPreferences.Apply(DisplayPreferences.SelectedSize,!DisplayPreferences.Fullscreen);
+                RefreshDisplay();
+            });
+            modeLabel=modeButton.GetComponentInChildren<Text>();
+            resolutionButton=Button("",frame,-5,()=>
+            {
+                var sizes=DisplayPreferences.Sizes;int index=0;
+                for(int i=0;i<sizes.Count;i++) if(sizes[i]==DisplayPreferences.SelectedSize) {index=i;break;}
+                DisplayPreferences.Apply(sizes[(index+1)%sizes.Count],DisplayPreferences.Fullscreen);
+                RefreshDisplay();
+            });
+            resolutionLabel=resolutionButton.GetComponentInChildren<Text>();
+            Label(Application.isEditor?"Display changes apply in standalone builds.":
+                "Changes apply immediately and are saved.\nFullscreen uses a borderless desktop window.",
+                frame,new Vector2(500,65),new Vector2(0,-85),16);
+            Button("BACK",frame,-170,()=>ShowDisplay(false));
+            displayFrame.SetActive(false);
+        }
+        public void ShowDisplay(bool show)
+        {
+            if(!displayFrame)return;
+            mainFrame.SetActive(!show);displayFrame.SetActive(show);
+            if(show)RefreshDisplay();
+            if(UnityEngine.EventSystems.EventSystem.current)
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(show?modeButton.gameObject:(Completed?next.gameObject:resume.gameObject));
+        }
+        void RefreshDisplay()
+        {
+            modeLabel.text=DisplayPreferences.Fullscreen?"MODE: FULLSCREEN":"MODE: WINDOWED";
+            var size=DisplayPreferences.SelectedSize;
+            resolutionLabel.text=size.x+" × "+size.y+(size==DisplayPreferences.DesktopSize?"  (NATIVE)":"");
         }
     }
 }

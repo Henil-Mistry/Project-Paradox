@@ -11,9 +11,9 @@ namespace Paradox.Tests
         {
             var hud=Object.FindFirstObjectByType<HUD>(); Assert.NotNull(hud);
             var play=hud.transform.Find("Play"); Assert.NotNull(play);
-            foreach(string name in new[]{"Prompt","Prompt Backing","Controls","Footer Backing"})
+            foreach(string name in new[]{"Prompt","Prompt Backing","Controls","Footer Backing","Header Backing","Tagline"})
                 Assert.IsFalse(play.Find(name).gameObject.activeInHierarchy,name);
-            foreach(string name in new[]{"Title","Dimension","Crosshair","Message","Header Backing"})
+            foreach(string name in new[]{"Dimension","Crosshair","Message"})
                 Assert.IsTrue(play.Find(name).gameObject.activeInHierarchy,name);
             Assert.NotNull(Object.FindFirstObjectByType<LevelMenus>());
             if(SceneManager.GetActiveScene().name=="Level01") Assert.NotNull(GameObject.Find("Garden controls tablet"));
