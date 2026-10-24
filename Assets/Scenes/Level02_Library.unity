@@ -69900,6 +69900,7 @@ GameObject:
   - component: {fileID: 1013289610}
   - component: {fileID: 1013289613}
   - component: {fileID: 1013289614}
+  - component: {fileID: 910000087}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -146389,3 +146390,17 @@ SceneRoots:
   - {fileID: 442571339}
   - {fileID: 1430774139}
   - {fileID: 596212554}
+--- !u!114 &910000087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013289608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65e937d9438f43debbffa727f292cba6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  clip: {fileID: 8300000, guid: 464c599fc1694330ab918e92e6b9b6e1, type: 3}
+  volume: 0.12

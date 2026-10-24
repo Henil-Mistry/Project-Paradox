@@ -15,6 +15,7 @@ namespace Paradox
         private RigidbodyInterpolation releasedInterpolation;
         public Dimension Dimension => dimension;
         public bool IsHeld { get; private set; }
+        public event System.Action Interacted;
         public bool IsAvailable => manager && dimension == manager.Current && !IsHeld;
         public void Configure(DimensionManager owner, DimensionObject visibility, Transform blackSpawn, Transform whiteSpawn, ParticleSystem effect)
         { manager = owner; dimensionObject = visibility; blackHome = blackSpawn; whiteHome = whiteSpawn; recoveryEffect = effect; }
@@ -22,6 +23,7 @@ namespace Paradox
         {
             body = GetComponent<Rigidbody>();
             releasedInterpolation = body.interpolation;
+            if (!GetComponent<BlockInteractionSound>()) gameObject.AddComponent<BlockInteractionSound>();
         }
         private void Start()
         {
@@ -40,16 +42,19 @@ namespace Paradox
             body.interpolation = RigidbodyInterpolation.None;
             IsHeld = true; dimensionObject.SetHeld(true);
             transform.SetParent(holdPoint, false); transform.localPosition = Vector3.zero; transform.localRotation = Quaternion.identity;
+            Interacted?.Invoke();
             return true;
         }
         public void Release(Vector3 position)
         {
+            bool wasHeld = IsHeld;
             body.interpolation = RigidbodyInterpolation.None;
             transform.SetParent(null, true); transform.SetPositionAndRotation(position, Quaternion.identity);
             ResetPhysicsPose(position);
             IsHeld = false; dimensionObject.SetHeld(false);
             ClearMotion(); Physics.SyncTransforms();
             body.interpolation = releasedInterpolation;
+            if (wasHeld) Interacted?.Invoke();
         }
         public void MoveToDimension(Dimension target, Vector3 position)
         {
