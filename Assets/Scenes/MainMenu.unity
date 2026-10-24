@@ -1615,6 +1615,7 @@ GameObject:
   - component: {fileID: 888769830}
   - component: {fileID: 888769829}
   - component: {fileID: 888769828}
+  - component: {fileID: 888769831}
   m_Layer: 0
   m_Name: PARADOX
   m_TagString: Untagged
@@ -1698,6 +1699,43 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 888769826}
   m_CullTransparentMesh: 1
+--- !u!114 &888769831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888769826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62540041e6cbc2a13bd70d10092a2035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Paradox.Runtime::Paradox.TitleScreenAnimator
+  reduceMotion: 0
+  introDuration: 2.5
+  taglineDelay: 0.4
+  buttonStagger: 0.12
+  playFadeDuration: 0.5
+  introSlide: 24
+  introLetterSpacing: 12
+  ringSpeed: 1.6
+  ringWobble: 4
+  pillarBob: 3
+  cloudSpeedNear: 3
+  cloudSpeedFar: 1.2
+  glowPulse: 0.12
+  particleSpeed: 1
+  seamSpeed: 0.12
+  parallaxPixels: 16
+  parallaxDamping: 5
+  titleSweepPeriod: 7
+  hoverScale: 1.05
+  pressScale: 0.97
+  feedbackDuration: 0.15
+  atmosphere: {fileID: 0}
+  whiteHalf: {fileID: 0}
+  blackHalf: {fileID: 0}
+  tagline: {fileID: 0}
 --- !u!1 &953461103
 GameObject:
   m_ObjectHideFlags: 0
