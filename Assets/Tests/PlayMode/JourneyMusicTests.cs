@@ -12,7 +12,7 @@ namespace Paradox.Tests
         public IEnumerator MusicPersistsAcrossScenesDimensionsPauseAndLoop()
         {
             AudioSource voice = null;
-            foreach (string scene in new[] { "MainMenu", "Level01", "Level02_Library", "Level03_MirrorLake" })
+            foreach (string scene in new[] { "MainMenu", "Level01", "Level02_Library", "Level03_MirrorLake", "Level04_Observatory", "Level05_Heart" })
             {
                 SceneManager.LoadScene(scene);
                 yield return null;
@@ -49,10 +49,6 @@ namespace Paradox.Tests
             yield return new WaitForSecondsRealtime(.8f);
             Assert.IsTrue(voice.isPlaying);
             Assert.Less(voice.time, 2f, "Clip should loop");
-            SceneManager.LoadScene("Level04_Observatory");
-            yield return new WaitForSecondsRealtime(1.5f);
-            Assert.IsFalse(voice.isPlaying);
-            Assert.AreEqual(0, voice.volume);
             SceneManager.LoadScene("MainMenu");
             yield return new WaitForSecondsRealtime(1.5f);
             Assert.IsTrue(voice.isPlaying);

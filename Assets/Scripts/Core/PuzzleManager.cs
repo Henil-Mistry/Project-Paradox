@@ -12,8 +12,9 @@ namespace Paradox
         public void ConfigureGate(DimensionManager worlds, Dimension gate) { dimensions = worlds; gateDimension = gate; }
         public bool DoorOpened { get; private set; }
         public bool Completed { get; private set; }
+        public event System.Action CompletionShown;
         public void Configure(Door exitDoor, PressurePlate requiredPlate, HUD display) { door = exitDoor; plate = requiredPlate; hud = display; }
-        private void Start() { if (!door || !plate || !hud) Debug.LogWarning("PuzzleManager needs door, plate and HUD.", this); }
+        private void Start() { if (!GetComponent<LevelCompletionSound>()) gameObject.AddComponent<LevelCompletionSound>(); if (!door || !plate || !hud) Debug.LogWarning("PuzzleManager needs door, plate and HUD.", this); }
         public bool TryOpenDoor(PressurePlate source)
         {
             if (DoorOpened || !source || source != plate || !source.IsSatisfied) return false;
@@ -34,6 +35,7 @@ namespace Paradox
             Completed = true;
             FirstPersonController.LockCursor(false);
             if (hud) hud.ShowCompletion();
+            CompletionShown?.Invoke();
             return true;
         }
     }

@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 namespace Paradox
 {
-    /// <summary>One non-spatial music voice shared by the menu and first three levels.</summary>
+    /// <summary>One non-spatial music voice shared by the menu and all five levels.</summary>
     public sealed class JourneyMusic : MonoBehaviour
     {
         private static JourneyMusic instance;
@@ -43,7 +43,8 @@ namespace Paradox
         private void SceneChanged(Scene previous, Scene current)
         {
             wanted = current.name == "MainMenu" || current.name == "Level01" ||
-                     current.name == "Level02_Library" || current.name == "Level03_MirrorLake";
+                     current.name == "Level02_Library" || current.name == "Level03_MirrorLake" ||
+                     current.name == "Level04_Observatory" || current.name == "Level05_Heart";
             // Neither scene reloads nor dimension switches restart an already playing voice.
             if (wanted && source.clip && !source.isPlaying) source.Play();
         }

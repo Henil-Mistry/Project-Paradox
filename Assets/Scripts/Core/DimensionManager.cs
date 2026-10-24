@@ -38,6 +38,7 @@ namespace Paradox
         { sun = lightSource; playerCamera = camera; hud = display; hands = interaction; switchProbe = probe; puzzle = state; }
         private void Start()
         {
+            if (!GetComponent<DimensionSwitchSound>()) gameObject.AddComponent<DimensionSwitchSound>();
             if (!sun || !playerCamera || !hud || !hands || !switchProbe || !puzzle) Debug.LogWarning("Assign all DimensionManager scene references.", this);
             transition=GetComponent<RealmTransition>();
             ApplyAtmosphere();
